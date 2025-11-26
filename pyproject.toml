@@ -1,0 +1,15 @@
+[project]
+name = "SleepMReye"
+version = "0.1.0"
+requires-python = ">=3.11,<3.12"
+
+dependencies = [
+    "mreyemove",
+]
+
+authors = [
+  { name = "Zach", email = "zachnudels@gmail.com" }
+]
+
+[project.entry-points."mreyemove.datasets"]
+sleepmreye = "sleepmreye.sleep_dataset:SleepDataset"

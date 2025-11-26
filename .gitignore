@@ -1,0 +1,91 @@
+# --------------------------
+# Python build artifacts
+# --------------------------
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+*.dylib
+
+# --------------------------
+# Package metadata
+# --------------------------
+*.egg-info/
+*.egg/
+.eggs/
+MANIFEST
+pip-wheel-metadata/
+
+# --------------------------
+# Hatch / Build System
+# --------------------------
+.hatch/
+dist/
+build/
+*.whl
+*.tar.gz
+
+# --------------------------
+# Jupyter Notebooks
+# --------------------------
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# --------------------------
+# Virtual environments
+# --------------------------
+venv/
+.env/
+.venv/
+env/
+*env/
+
+# --------------------------
+# IDE / Editor metadata
+# --------------------------
+
+# VSCode
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# MacOS
+.DS_Store
+
+# --------------------------
+# Logs / temp files
+# --------------------------
+*.log
+*.tmp
+*.temp
+
+# --------------------------
+# Hatch-VCS version files
+# (auto-generated _version.py)
+# --------------------------
+src/mreyemove/_version.py
+
+# --------------------------
+# Optional: ignore outputs from tools
+# --------------------------
+
+# Ruff
+.ruff_cache/
+
+# Pytest
+.pytest_cache/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# --------------------------
+# Notebook data
+# --------------------------
+*/figures/
+*/outputs/
+.idea/
