@@ -1,11 +1,12 @@
+import logging
+
 import numpy as np
 import re
 import pandas as pd
-from mreyemove import enable_logging
-
-enable_logging()
 
 from mreyemove.data.dataset import BaseDataset
+
+logger = logging.getLogger(__name__)
 
 
 class SleepDataset(BaseDataset):
@@ -74,7 +75,7 @@ class SleepDataset(BaseDataset):
             if (df["task"] == "sleep").any():
                 all_events.append(df)
             else:
-                print(f"Removing subject {subject} without sleep sessions")
+                logger.info(f"Removing subject {subject} without sleep sessions")
 
         if not all_events:
             raise RuntimeError("No sleep epoch files found under sourcedata.")
