@@ -19,17 +19,17 @@ class SleepDataset(BaseDataset):
     def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
         return not (~_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
 
-    def _load_events_impl(self):
-        events_epoch = self._load_sleep_epochs()
+    def _load_events_impl(self, exclude_subjs: list[str] | None = None, load_signal: bool = True):
+        events_epoch = self._load_sleep_epochs(exclude_subjs=exclude_subjs)
         events_epoch = events_epoch[events_epoch["task"] == "sleep"]
         events_tr = self.build_tr_level_events(
             epoch_events=events_epoch,
             n_scans=self.n_scans(subject="03"),
+            load_signal=load_signal,
         )
         return events_tr
-        # return pd.DataFrame({col: [] for col in self.REQUIRED_COLUMNS}) # events_tr
 
-    def _load_sleep_epochs(self) -> pd.DataFrame:
+    def _load_sleep_epochs(self, exclude_subjs: list[str] | None = None) -> pd.DataFrame:
         """
         Load sourcedata epoch files and return a long DataFrame with one row per 30s epoch.
 
@@ -48,6 +48,10 @@ class SleepDataset(BaseDataset):
             if m is None:
                 continue
             subject = m.group(1)
+
+            if exclude_subjs is not None and subject in exclude_subjs:
+                logger.info(f"Skipping subject {subject}")
+                continue
 
             df = pd.read_csv(subject_event_path, sep="\t")
 
@@ -144,6 +148,7 @@ class SleepDataset(BaseDataset):
             self,
             epoch_events: pd.DataFrame,
             n_scans: int,
+            load_signal: bool = True,
     ) -> pd.DataFrame:
         """
         Expand epoch-level sleep events to TR-level labels for all runs.
@@ -180,6 +185,15 @@ class SleepDataset(BaseDataset):
                 run_events=run_events,
                 n_scans=n_scans,
             )
+
+            if load_signal:
+                run_tr_df = self._add_mreyemove_to_events(
+                    df=run_tr_df,
+                    subject=subject,
+                    run=run,
+                    task=task,
+                    mask_cols=["W", "1", "2"]
+                )
 
             tr_dfs.append(run_tr_df)
         tr_events = pd.concat(tr_dfs, ignore_index=True)
