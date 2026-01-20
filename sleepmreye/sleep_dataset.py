@@ -191,7 +191,6 @@ class SleepDataset(BaseDataset):
                     df=run_tr_df,
                     subject=subject,
                     run=run,
-                    task=task,
                     mask_cols=["W", "1", "2"]
                 )
 
