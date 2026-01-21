@@ -19,8 +19,8 @@ class SleepDataset(BaseDataset):
     def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
         return not (~_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
 
-    def _load_events_impl(self, exclude_subjs: list[str] | None = None, load_signal: bool = True):
-        events_epoch = self._load_sleep_epochs(exclude_subjs=exclude_subjs)
+    def _load_events_impl(self, subjects: list[str], exclude_subjects: list[str] | None, load_signal: bool = True):
+        events_epoch = self._load_sleep_epochs(subjects=subjects, exclude_subjects=exclude_subjects)
         events_epoch = events_epoch[events_epoch["task"] == "sleep"]
         events_tr = self.build_tr_level_events(
             epoch_events=events_epoch,
@@ -29,7 +29,7 @@ class SleepDataset(BaseDataset):
         )
         return events_tr
 
-    def _load_sleep_epochs(self, exclude_subjs: list[str] | None = None) -> pd.DataFrame:
+    def _load_sleep_epochs(self, subjects: list[str] | None, exclude_subjects: list[str] | None) -> pd.DataFrame:
         """
         Load sourcedata epoch files and return a long DataFrame with one row per 30s epoch.
 
@@ -43,14 +43,18 @@ class SleepDataset(BaseDataset):
 
         all_events: list[pd.DataFrame] = []
 
+        logger.debug(exclude_subjects)
+
         for subject_event_path in event_dir.rglob("sub-*.tsv"):
             m = re.search(r"sub-(\d+)", subject_event_path.name)
             if m is None:
                 continue
             subject = m.group(1)
 
-            if exclude_subjs is not None and subject in exclude_subjs:
-                logger.info(f"Skipping subject {subject}")
+            if (subjects is not None and subject not in subjects) or (
+                exclude_subjects is not None and subject in exclude_subjects
+            ):
+                logger.info("Skipping subject %s", subject)
                 continue
 
             df = pd.read_csv(subject_event_path, sep="\t")
