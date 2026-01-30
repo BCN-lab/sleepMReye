@@ -1,0 +1,23 @@
+F_TEST: false
+
+regressor_names:
+  - mreyemove_W
+  - mreyemove_S
+  - conv_framewise_displacement
+
+
+contrasts:
+  mreyemove: { }
+  mreyemove_W: "mreyemove_W"
+  mreyemove_S: "mreyemove_S"
+  mreyemove_W-mreyemove_S: "mreyemove_W - mreyemove_S"
+  conv_framewise_displacement: "conv_framewise_displacement"
+
+
+first_level:
+  fwhm: 6
+  convolve: true
+  shift: 0
+
+desc_add: sleep-conv-fd
+

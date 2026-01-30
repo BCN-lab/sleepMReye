@@ -1,0 +1,20 @@
+F_TEST: false
+
+regressor_names:
+  - mreyemove_W
+  - mreyemove_S
+
+contrasts:
+  mreyemove: { }
+  mreyemove_W: "mreyemove_W"
+  mreyemove_S: "mreyemove_S"
+  mreyemove_W-mreyemove_S: "mreyemove_W - mreyemove_S"
+
+
+first_level:
+  fwhm: 6
+  convolve: true
+  shift: 0
+
+desc_add: sleep-no-fd
+
