@@ -1,0 +1,24 @@
+F_TEST: false
+
+regressor_names:
+  - mreyemove_W
+  - mreyemove_1
+  - mreyemove_2
+
+contrasts:
+  mreyemove: { }
+  mreyemove_W: "mreyemove_W"
+  mreyemove_1: "mreyemove_1"
+  mreyemove_2: "mreyemove_2"
+  mreyemove_1-mreyemove_2: "mreyemove_1 - mreyemove_2"
+  mreyemove_W-mreyemove_1: "mreyemove_W - mreyemove_1"
+  mreyemove_W-mreyemove_2: "mreyemove_W - mreyemove_2"
+
+
+first_level:
+  fwhm: 6
+  convolve: true
+  shift: 0
+
+desc_add: clean-no-fd
+

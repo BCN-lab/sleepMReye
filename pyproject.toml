@@ -12,4 +12,4 @@ authors = [
 ]
 
 [project.entry-points."mreyemove.datasets"]
-sleepmreye = "sleepmreye.sleep_dataset:SleepDataset"
+sleepmreye = "sleepmreye.sleep_mrio:SleepMRIO"

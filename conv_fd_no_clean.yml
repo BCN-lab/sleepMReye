@@ -1,0 +1,26 @@
+F_TEST: false
+
+regressor_names:
+  - mreyemove_W
+  - mreyemove_1
+  - mreyemove_2
+  - conv_framewise_displacement
+
+contrasts:
+  mreyemove: { }
+  mreyemove_W: "mreyemove_W"
+  mreyemove_1: "mreyemove_1"
+  mreyemove_2: "mreyemove_2"
+  mreyemove_1-mreyemove_2: "mreyemove_1 - mreyemove_2"
+  mreyemove_W-mreyemove_1: "mreyemove_W - mreyemove_1"
+  mreyemove_W-mreyemove_2: "mreyemove_W - mreyemove_2"
+  conv_framewise_displacement: "conv_framewise_displacement"
+
+
+first_level:
+  fwhm: 6
+  convolve: true
+  shift: 0
+
+desc_add: conv-fd-no-clean
+

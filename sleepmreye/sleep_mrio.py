@@ -4,17 +4,17 @@ import numpy as np
 import re
 import pandas as pd
 
-from mreyemove.data.dataset import BaseDataset
+from mreyemove.data.mrio import MRIO
 
 logger = logging.getLogger(__name__)
 
 
-class SleepDataset(BaseDataset):
+class SleepMRIO(MRIO):
     DEFAULT_TASK = "sleep"
     VALID_EVENT_STAGES = ["W", "1", "2"]
 
     def __init__(self, **kwargs):
-        super(SleepDataset, self).__init__(tr=2.1, **kwargs)
+        super().__init__(**kwargs)
 
     def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
         return not (~_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
@@ -42,8 +42,6 @@ class SleepDataset(BaseDataset):
         event_dir = self.bids_root / "sourcedata"
 
         all_events: list[pd.DataFrame] = []
-
-        logger.debug(exclude_subjects)
 
         for subject_event_path in event_dir.rglob("sub-*.tsv"):
             m = re.search(r"sub-(\d+)", subject_event_path.name)
@@ -103,6 +101,7 @@ class SleepDataset(BaseDataset):
         events["1"] = events["state"] == "1"
         events["2"] = events["state"] == "2"
         events["3"] = events["state"] == "3"
+        events["S"] = events["state"].isin(["1", "2"])
 
         return events
 
@@ -142,9 +141,6 @@ class SleepDataset(BaseDataset):
         df_repeated = df_repeated.drop(columns=["epoch_start_time_sec", "repeat"], errors="ignore")
 
         df_repeated["TR"] = df_repeated.index
-
-        # trim
-        df_repeated = df_repeated.iloc[self.tr_slice()].reset_index(drop=True)
 
         return df_repeated
 
@@ -195,10 +191,16 @@ class SleepDataset(BaseDataset):
                     df=run_tr_df,
                     subject=subject,
                     run=run,
-                    mask_cols=["W", "1", "2"]
+                    mask_cols=["W", "1", "2", "S"],
                 )
+
+            framewise_displacement = self.load_confounds(subject=subject, run=run, confound_names=[
+                "framewise_displacement"]).copy().reset_index(drop=True)
+            run_tr_df = run_tr_df.reset_index(drop=True)
+            run_tr_df["conv_framewise_displacement"] = framewise_displacement
 
             tr_dfs.append(run_tr_df)
         tr_events = pd.concat(tr_dfs, ignore_index=True)
+        tr_events.to_csv("/Users/zach/2025_RA/matthias/events.csv")
         return tr_events
 
