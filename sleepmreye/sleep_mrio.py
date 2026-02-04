@@ -201,6 +201,5 @@ class SleepMRIO(MRIO):
 
             tr_dfs.append(run_tr_df)
         tr_events = pd.concat(tr_dfs, ignore_index=True)
-        tr_events.to_csv("/Users/zach/2025_RA/matthias/events.csv")
         return tr_events
 

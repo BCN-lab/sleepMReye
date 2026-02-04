@@ -4,6 +4,7 @@ regressor_names:
   - mreyemove_W
   - mreyemove_1
   - mreyemove_2
+  - conv_framewise_displacement
 
 contrasts:
   mreyemove: { }
@@ -13,6 +14,7 @@ contrasts:
   mreyemove_1-mreyemove_2: "mreyemove_1 - mreyemove_2"
   mreyemove_W-mreyemove_1: "mreyemove_W - mreyemove_1"
   mreyemove_W-mreyemove_2: "mreyemove_W - mreyemove_2"
+  conv_framewise_displacement: "conv_framewise_displacement"
 
 
 first_level:
@@ -20,5 +22,5 @@ first_level:
   convolve: true
   shift: 0
 
-desc_add: clean-no-fd
+desc_add: conv-fd
 

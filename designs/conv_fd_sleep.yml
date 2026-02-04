@@ -5,7 +5,6 @@ regressor_names:
   - mreyemove_S
   - conv_framewise_displacement
 
-
 contrasts:
   mreyemove: { }
   mreyemove_W: "mreyemove_W"
@@ -19,5 +18,5 @@ first_level:
   convolve: true
   shift: 0
 
-desc_add: sleep-conv-fd
+desc_add: conv-fd-sleep
 
