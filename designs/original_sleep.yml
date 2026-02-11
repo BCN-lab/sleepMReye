@@ -15,5 +15,6 @@ first_level:
   fwhm: 6
   convolve: true
   shift: 0
+  split_regressors: mreyemove
 
 desc_add: original-sleep

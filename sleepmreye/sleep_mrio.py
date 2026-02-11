@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import re
 import pandas as pd
+from scipy.stats import zscore
 
 from mreyemove.data.mrio import MRIO
 
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 class SleepMRIO(MRIO):
     DEFAULT_TASK = "sleep"
     VALID_EVENT_STAGES = ["W", "1", "2"]
+    MASK_COLS = ["W", "1", "2", "S"]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -179,6 +181,8 @@ class SleepMRIO(MRIO):
 
         grouped = epoch_events.groupby(["subject", "task", "run"], sort=False)
 
+        eog_data = self.load_eog_df()
+
         for (subject, task, run), run_events in grouped:
             # Expand into per-TR masks
             run_tr_df = self._expand_epoch_to_trs(
@@ -191,15 +195,39 @@ class SleepMRIO(MRIO):
                     df=run_tr_df,
                     subject=subject,
                     run=run,
-                    mask_cols=["W", "1", "2", "S"],
+                    mask_cols=self.MASK_COLS,
                 )
 
             framewise_displacement = self.load_confounds(subject=subject, run=run, confound_names=[
                 "framewise_displacement"]).copy().reset_index(drop=True)
+            eog_run_df = eog_data[(eog_data["subject"] == subject) & (eog_data["run"] == run)].reset_index(drop=True)
+            eog_run = eog_run_df["signal"].to_numpy()
+            eog_run = eog_run[self.tr_slice()]
+
             run_tr_df = run_tr_df.reset_index(drop=True)
             run_tr_df["conv_framewise_displacement"] = framewise_displacement
+            if len(eog_run) != len(run_tr_df):
+                eog_run = [np.nan for _ in range(len(run_tr_df))]
+            run_tr_df["eog"] = eog_run
+            self.split_regressor(
+                run_df=run_tr_df,
+                regressor_name="eog",
+                state_cols=self.MASK_COLS,
+                fill_value=0.0,
+            )
 
             tr_dfs.append(run_tr_df)
         tr_events = pd.concat(tr_dfs, ignore_index=True)
+
+        tr_events.to_csv("/Users/zach/2025_RA/matthias/X/events.csv")
         return tr_events
 
+    def load_eog_df(self, rectify: bool = True, aggr: str = "mean") -> pd.DataFrame:
+        dir = self.mreyemove_dir / "group" / "eeg"
+        fname = ""
+        if rectify:
+            fname = "rectify_"
+        fname = f"{fname}{aggr}_eog_reg.p"
+
+        df = pd.read_pickle(dir / fname)
+        return df

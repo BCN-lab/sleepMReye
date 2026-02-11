@@ -10,15 +10,16 @@ contrasts:
   mreyemove_W: "mreyemove_W"
   mreyemove_1: "mreyemove_1"
   mreyemove_2: "mreyemove_2"
-  mreyemove_1-mreyemove_2: "mreyemove_1 - mreyemove_2"
-  mreyemove_W-mreyemove_1: "mreyemove_W - mreyemove_1"
-  mreyemove_W-mreyemove_2: "mreyemove_W - mreyemove_2"
+#  mreyemove_1-mreyemove_2: "mreyemove_1 - mreyemove_2"
+#  mreyemove_W-mreyemove_1: "mreyemove_W - mreyemove_1"
+#  mreyemove_W-mreyemove_2: "mreyemove_W - mreyemove_2"
 
 
 first_level:
   fwhm: 6
   convolve: true
   shift: 0
+  split_regressors: mreyemove
 
 desc_add: original
 

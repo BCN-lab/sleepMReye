@@ -1,0 +1,21 @@
+F_TEST: false
+
+regressor_names:
+  - eog_W
+  - eog_1
+  - eog_2
+
+contrasts:
+  eog: "eog_W + eog_1 + eog_2"
+  eog_W: "eog_W"
+  eog_1: "eog_1"
+  eog_2: "eog_2"
+
+first_level:
+  fwhm: 6
+  convolve: true
+  shift: 0
+  split_regressors: eog
+
+desc_add: eog-old-confounds
+
