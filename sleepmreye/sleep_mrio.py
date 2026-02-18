@@ -19,7 +19,7 @@ class SleepMRIO(MRIO):
         super().__init__(**kwargs)
 
     def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
-        return not (~_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
+        return (_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
 
     def _load_events_impl(self, subjects: list[str], exclude_subjects: list[str] | None, load_signal: bool = True):
         events_epoch = self._load_sleep_epochs(subjects=subjects, exclude_subjects=exclude_subjects)
