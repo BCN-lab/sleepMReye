@@ -13,3 +13,7 @@ authors = [
 
 [project.entry-points."mreyemove.datasets"]
 sleepmreye = "sleepmreye.sleep_mrio:SleepMRIO"
+
+
+[project.scripts]
+sleepmreye-fc-extract = "sleepmreye.extract_fc_matrices:cli_main"

@@ -21,8 +21,15 @@ class SleepMRIO(MRIO):
     def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
         return (_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
 
-    def _load_events_impl(self, subjects: list[str], exclude_subjects: list[str] | None, load_signal: bool = True):
-        events_epoch = self._load_sleep_epochs(subjects=subjects, exclude_subjects=exclude_subjects)
+    def _load_events_impl(
+        self,
+        subjects: list[str],
+        exclude_subjects: list[str] | None,
+        load_signal: bool = True,
+    ):
+        events_epoch = self._load_sleep_epochs(
+            subjects=subjects, exclude_subjects=exclude_subjects
+        )
         events_epoch = events_epoch[events_epoch["task"] == "sleep"]
         events_tr = self.build_tr_level_events(
             epoch_events=events_epoch,
@@ -31,7 +38,9 @@ class SleepMRIO(MRIO):
         )
         return events_tr
 
-    def _load_sleep_epochs(self, subjects: list[str] | None, exclude_subjects: list[str] | None) -> pd.DataFrame:
+    def _load_sleep_epochs(
+        self, subjects: list[str] | None, exclude_subjects: list[str] | None
+    ) -> pd.DataFrame:
         """
         Load sourcedata epoch files and return a long DataFrame with one row per 30s epoch.
 
@@ -108,9 +117,9 @@ class SleepMRIO(MRIO):
         return events
 
     def _expand_epoch_to_trs(
-            self,
-            run_events: pd.DataFrame,
-            n_scans: int,
+        self,
+        run_events: pd.DataFrame,
+        n_scans: int,
     ) -> pd.DataFrame:
         """
         Expand epoch-level state labels to TR-level labels for a single run.
@@ -140,17 +149,19 @@ class SleepMRIO(MRIO):
 
         df_repeated = df.loc[df.index.repeat(df["repeat"])].reset_index(drop=True)
 
-        df_repeated = df_repeated.drop(columns=["epoch_start_time_sec", "repeat"], errors="ignore")
+        df_repeated = df_repeated.drop(
+            columns=["epoch_start_time_sec", "repeat"], errors="ignore"
+        )
 
         df_repeated["TR"] = df_repeated.index
 
         return df_repeated
 
     def build_tr_level_events(
-            self,
-            epoch_events: pd.DataFrame,
-            n_scans: int,
-            load_signal: bool = True,
+        self,
+        epoch_events: pd.DataFrame,
+        n_scans: int,
+        load_signal: bool = True,
     ) -> pd.DataFrame:
         """
         Expand epoch-level sleep events to TR-level labels for all runs.
@@ -198,9 +209,16 @@ class SleepMRIO(MRIO):
                     mask_cols=self.MASK_COLS,
                 )
 
-            framewise_displacement = self.load_confounds(subject=subject, run=run, confound_names=[
-                "framewise_displacement"]).copy().reset_index(drop=True)
-            eog_run_df = eog_data[(eog_data["subject"] == subject) & (eog_data["run"] == run)].reset_index(drop=True)
+            framewise_displacement = (
+                self.load_confounds(
+                    subject=subject, run=run, confound_names=["framewise_displacement"]
+                )
+                .copy()
+                .reset_index(drop=True)
+            )
+            eog_run_df = eog_data[
+                (eog_data["subject"] == subject) & (eog_data["run"] == run)
+            ].reset_index(drop=True)
             eog_run = eog_run_df["signal"].to_numpy()
             eog_run = eog_run[self.tr_slice()]
 
