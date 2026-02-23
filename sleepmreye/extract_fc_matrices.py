@@ -21,7 +21,7 @@ from .sleep_mrio import SleepMRIO
 from mreyemove import enable_logging, _ensure_worker_logging, ContextAdapter
 from mreyemove.analysis.glm.config import GLMConfig
 from mreyemove.cli.common_args import add_io_args, add_logger_args, build_mrio_from_args
-from mreyemove.constants import COMMON_CONFOUNDS
+from mreyemove.constants import GLM_CONFOUNDS
 from mreyemove.data.mrio import MRIO
 from mreyemove.preprocessing.eye_move import convolve_signal
 
@@ -59,14 +59,9 @@ def compute_fc_matrix(
     return correlation_matrix
 
 
-def fisher_z(r):
-    r = np.clip(r, -0.999999, 0.999999)
-    return 0.5 * np.log((1 + r) / (1 - r))
-
-
 def compute_subject_matrix(
     subject: str,
-    include_eye_diss: bool,
+    include_mreyemove: bool,
     mrio: MRIO,
     masker: NiftiLabelsMasker,
     config: GLMConfig,
@@ -79,26 +74,28 @@ def compute_subject_matrix(
     subj_logger = ContextAdapter(logging.getLogger(__name__), {"ctx": {}}).with_ctx(
         subj=subject
     )
-    subj_logger.info("PID %s with include_eye_diss %s", os.getpid(), include_eye_diss)
+    subj_logger.info("PID %s with include_mreyemove %s", os.getpid(), include_mreyemove)
     state_matrices = {}
 
+    ref_img, _ = mrio.load_functional_image(subject=subject, run="1")
+    subj_masker = cast(NiftiLabelsMasker, clone(masker))
+    subj_masker.fit(
+        ref_img
+    )  # Only fit the masker geometry once per subject (same for all runs)
     for _, run, run_df in mrio.iter_run_events(subject=subject):
         img, _ = mrio.load_functional_image(subject=subject, run=run)
-        subj_masker = cast(NiftiLabelsMasker, clone(masker))
-        subj_masker.fit(
-            img
-        )  # Only fit the masker geometry once per subject (same for all runs)
 
-        confound_names = list(set(COMMON_CONFOUNDS) - {"global_signal"})
+        confound_names = list(set(GLM_CONFOUNDS) - {"global_signal"})
         confounds = mrio.load_confounds(
             subject=subject, run=run, confound_names=confound_names
         )
 
-        if include_eye_diss:
+        if include_mreyemove:
             eye_confound, _ = mrio.load_eye_move(subject=subject, run=run)
+            confounds["mreyemove"] = eye_confound
             if convolve:
-                eye_confound = convolve_signal(signal=eye_confound, tr=mrio.tr)
-            confounds["eye_dissimilarity"] = eye_confound
+                eye_confound_conv = convolve_signal(signal=eye_confound, tr=mrio.tr)
+                confounds["mreyemove_conv"] = eye_confound_conv
 
         state_masks = {}
         for regressor in config.regressor_names:
@@ -123,8 +120,7 @@ def compute_subject_matrix(
                 run=run,
                 state=state,
             )
-            transformed_matrix = fisher_z(matrix)
-            state_matrices.setdefault(state, []).append(transformed_matrix)
+            state_matrices.setdefault(state, []).append(matrix)
 
     state_means = {}
     for state, matrix in state_matrices.items():
@@ -140,7 +136,7 @@ def compute_all_subjects(
 
     run_func_with = partial(
         compute_subject_matrix,
-        include_eye_diss=True,
+        include_mreyemove=True,
         masker=masker,
         mrio=mrio,
         convolve=convolve,
@@ -150,7 +146,7 @@ def compute_all_subjects(
 
     run_func_without = partial(
         compute_subject_matrix,
-        include_eye_diss=False,
+        include_mreyemove=False,
         masker=masker,
         mrio=mrio,
         convolve=convolve,
@@ -167,17 +163,7 @@ def compute_all_subjects(
             delayed(run_func_without)(subject) for subject in subjects
         )
 
-    # else:
-    #     logger.info("Running subjects in parallel")
-    #     with_eds = Parallel(n_jobs=n_jobs, backend="loky")(delayed(run_func_with)(subject) for subject in subjects)
-    #     without_eds = Parallel(n_jobs=n_jobs, verbose=10)(
-    #         delayed(run_func_without)(subject) for subject in subjects)
-    #
-
-    # with_eds = Parallel(n_jobs=n_jobs, verbose=10)(delayed(run_func_with)(subject) for subject in subjects)
-    #
-    # without_eds = Parallel(n_jobs=n_jobs, verbose=10)(delayed(run_func_without)(subject) for subject in subjects)
-
+    # Reshape the data so it is a dict of state: [subject matrices]
     with_state_arrays = {}
     without_state_arrays = {}
     for i in range(len(subjects)):
@@ -201,7 +187,7 @@ def extract_with_atlas(
     log_level: int,
 ):
     file_name = atlas_name
-    file_name += "_conv" if convolve else ""
+    file_name += "_conv-and-unconv" if convolve else ""
 
     masker = NiftiLabelsMasker(
         labels_img=atlas.maps,
@@ -233,7 +219,7 @@ def extract_with_atlas(
         np.save(output_dir / f"{file_name}_{state}_with_eds.npy", with_eds)
         np.save(output_dir / f"{file_name}_{state}_without_eds.npy", without_eds)
 
-        logger.info(f"Saved FC matrices at {output_dir} / {file_name}")
+        logger.info(f"Saved FC matrices at {output_dir} / {file_name}_{state}_<>.npy")
 
 
 def cli_main() -> None:
