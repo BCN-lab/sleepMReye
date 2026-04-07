@@ -18,10 +18,6 @@ first_level:
   split_regressors: mreyemove
 
 second_level:
-  atlas: wang
-#  method: flame
-  method: randomise
-  n_perm: 2000
-  var_smooth: 5
+  atlas: juelich
 
 desc_add: original-sleep

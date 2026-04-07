@@ -21,5 +21,12 @@ first_level:
   shift: 0
   split_regressors: mreyemove
 
+
+second_level:
+  atlas: wang
+  method: randomise
+  n_perm: 2000
+  var_smooth: 5
+
 desc_add: original
 

@@ -3,9 +3,15 @@ import logging
 import numpy as np
 import re
 import pandas as pd
+from nilearn import signal
+from nilearn.image import resample_to_img
+from nilearn.masking import apply_mask
 from scipy.stats import zscore
 
+from mreyemove.constants import COMMON_CONFOUNDS, EYE_SIGNAL_CONFOUNDS
+from mreyemove.data.fmri_mixin import TissueType
 from mreyemove.data.mrio import MRIO
+from mreyemove.preprocessing.eye_move import construct_dissimilarity_signal
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +21,8 @@ class SleepMRIO(MRIO):
     VALID_EVENT_STAGES = ["W", "1", "2"]
     MASK_COLS = ["W", "1", "2", "S"]
 
-    def __init__(self, **kwargs):
+    def __init__(self, load_eog: bool = True, **kwargs):
+        self.load_eog = load_eog
         super().__init__(**kwargs)
 
     def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
@@ -209,6 +216,7 @@ class SleepMRIO(MRIO):
                     mask_cols=self.MASK_COLS,
                 )
 
+            run_tr_df = run_tr_df.reset_index(drop=True)
             framewise_displacement = (
                 self.load_confounds(
                     subject=subject, run=run, confound_names=["framewise_displacement"]
@@ -216,23 +224,41 @@ class SleepMRIO(MRIO):
                 .copy()
                 .reset_index(drop=True)
             )
-            eog_run_df = eog_data[
-                (eog_data["subject"] == subject) & (eog_data["run"] == run)
-            ].reset_index(drop=True)
-            eog_run = eog_run_df["signal"].to_numpy()
-            eog_run = eog_run[self.tr_slice()]
-
-            run_tr_df = run_tr_df.reset_index(drop=True)
             run_tr_df["conv_framewise_displacement"] = framewise_displacement
-            if len(eog_run) != len(run_tr_df):
-                eog_run = [np.nan for _ in range(len(run_tr_df))]
-            run_tr_df["eog"] = eog_run
-            self.split_regressor(
-                run_df=run_tr_df,
-                regressor_name="eog",
-                state_cols=self.MASK_COLS,
-                fill_value=0.0,
-            )
+            if self.load_eog:
+                eog_run_df = eog_data[
+                    (eog_data["subject"] == subject) & (eog_data["run"] == run)
+                ].reset_index(drop=True)
+                eog_run = eog_run_df["signal"].to_numpy()
+                eog_run = eog_run[self.tr_slice()]
+
+                if len(eog_run) == len(run_tr_df):
+                    confounds = self.load_confounds(
+                        subject=subject, run=run, confound_names=COMMON_CONFOUNDS
+                    )
+                    eog_run_2d = eog_run.reshape(-1, 1)
+                    eog_run = signal.clean(
+                        eog_run_2d,
+                        confounds=confounds,
+                        standardize=False,
+                        detrend=False,
+                        filter=False,
+                        t_r=None,
+                    ).ravel()
+                    eog_run = np.maximum(eog_run, 0)
+                else:
+                    logger.warning("EOG data not full for %s, %s (%d/%d). Skipping", subject, run, len(eog_run), len(run_tr_df))
+                    eog_run = [np.nan for _ in range(len(run_tr_df))]
+
+                if len(eog_run) != len(run_tr_df):
+                    eog_run = [np.nan for _ in range(len(run_tr_df))]
+                run_tr_df["eog"] = eog_run
+                self.split_regressor(
+                    run_df=run_tr_df,
+                    regressor_name="eog",
+                    state_cols=self.MASK_COLS,
+                    fill_value=0.0,
+                )
 
             tr_dfs.append(run_tr_df)
         tr_events = pd.concat(tr_dfs, ignore_index=True)
