@@ -20,13 +20,25 @@ class SleepMRIO(MRIO):
     DEFAULT_TASK = "sleep"
     VALID_EVENT_STAGES = ["W", "1", "2"]
     MASK_COLS = ["W", "1", "2", "S"]
+    FD_THRESHOLD = 0.5
+    IGNORE_BOUNDARY_TRS = 7
 
     def __init__(self, load_eog: bool = True, **kwargs):
         self.load_eog = load_eog
         super().__init__(**kwargs)
 
     def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
-        return (_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
+        valid_sleep_stages = (_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
+        subject = _run_events["subject"].iloc[0]
+        run = _run_events["run"].iloc[0]
+        fd = self.load_confounds(
+            subject=subject,
+            run=run,
+            confound_names=["framewise_displacement"]
+        )["framewise_displacement"]
+        below_fd = fd.mean() < self.FD_THRESHOLD
+
+        return valid_sleep_stages and below_fd
 
     def _load_events_impl(
         self,
@@ -199,7 +211,10 @@ class SleepMRIO(MRIO):
 
         grouped = epoch_events.groupby(["subject", "task", "run"], sort=False)
 
-        eog_data = self.load_eog_df()
+        if self.load_eog:
+            eog_data = self.load_eog_df()
+        else:
+            eog_data = None
 
         for (subject, task, run), run_events in grouped:
             # Expand into per-TR masks
@@ -225,12 +240,15 @@ class SleepMRIO(MRIO):
                 .reset_index(drop=True)
             )
             run_tr_df["conv_framewise_displacement"] = framewise_displacement
-            if self.load_eog:
+            if self.load_eog and eog_data is not None:
                 eog_run_df = eog_data[
-                    (eog_data["subject"] == subject) & (eog_data["run"] == run)
+                    (eog_data["subject"] == subject) & (eog_data["run"] == str(run))
                 ].reset_index(drop=True)
                 eog_run = eog_run_df["signal"].to_numpy()
-                eog_run = eog_run[self.tr_slice()]
+
+                # Take velocity so equivalent to mreyemove and half shift
+                eog_run = np.abs(np.diff(eog_run))
+                eog_run = 0.5 * (eog_run[:-1] + eog_run[1:])
 
                 if len(eog_run) == len(run_tr_df):
                     confounds = self.load_confounds(
@@ -266,12 +284,13 @@ class SleepMRIO(MRIO):
         tr_events.to_csv("/Users/zach/2025_RA/matthias/X/events.csv")
         return tr_events
 
-    def load_eog_df(self, rectify: bool = True, aggr: str = "mean") -> pd.DataFrame:
+    def load_eog_df(self, rectify: bool = False, aggr: str = "mean") -> pd.DataFrame:
         dir = self.mreyemove_dir / "group" / "eeg"
         fname = ""
         if rectify:
             fname = "rectify_"
         fname = f"{fname}{aggr}_eog_reg.p"
+        logger.info(dir / fname)
 
         df = pd.read_pickle(dir / fname)
         return df

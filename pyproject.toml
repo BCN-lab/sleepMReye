@@ -11,9 +11,15 @@ authors = [
   { name = "Zach", email = "zachnudels@gmail.com" }
 ]
 
+[tool.setuptools.packages.find]
+include = ["sleepmreye*"]
+exclude = ["nilearn_cache*"]
+
+
 [project.entry-points."mreyemove.datasets"]
 sleepmreye = "sleepmreye.sleep_mrio:SleepMRIO"
 
 
 [project.scripts]
 sleepmreye-fc-extract = "sleepmreye.extract_fc_matrices:cli_main"
+sleepmreye-extract-eog = "sleepmreye.extract_eog:cli_main"

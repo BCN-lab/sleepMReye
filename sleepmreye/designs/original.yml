@@ -24,9 +24,9 @@ first_level:
 
 second_level:
   atlas: wang
-  method: randomise
-  n_perm: 2000
-  var_smooth: 5
+  method: flame
+#  n_perm: 2000
+#  var_smooth: 5
 
 desc_add: original
 

@@ -3,12 +3,16 @@ F_TEST: false
 regressor_names:
   - mreyemove_W
   - mreyemove_S
+  - mreyemove_trans
 
 contrasts:
   mreyemove: { }
+#  mreyemove_trans: "mreyemove_trans"
   mreyemove_W: "mreyemove_W"
   mreyemove_S: "mreyemove_S"
   mreyemove_W-mreyemove_S: "mreyemove_W - mreyemove_S"
+#  mreyemove_trans-mreyemove_W: "mreyemove_trans - mreyemove_W"
+#  mreyemove_trans-mreyemove_S: "mreyemove_trans - mreyemove_S"
 
 
 first_level:
@@ -19,11 +23,11 @@ first_level:
 
 second_level:
 #  atlas: wang
-#  method: flame
-  method: randomise
-  n_perm: 2000
+  method: flame
+#  method: randomise
+#  n_perm: 2000
 
 #  var_smooth: 5
 
-desc_add: original-sleep
+desc_add: original-sleep-7TRs
 

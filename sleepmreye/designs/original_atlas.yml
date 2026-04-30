@@ -38,8 +38,8 @@ second_level:
 ##      SMA: [ L_6ma_ROI, R_6ma_ROI, L_6mp_ROI, R_6mp_ROI, L_SCEF_ROI, R_SCEF_ROI ]
 #      FEF: [ L_FEF_ROI, R_FEF_ROI ]
 ##      TPO: [ L_TPOJ1_ROI, R_TPOJ1_ROI, L_TPOJ2_ROI, R_TPOJ2_ROI, L_TPOJ3_ROI, R_TPOJ3_ROI ]
-#    ho_sub:
-#      Hipp: ["Left Hippocampus", "Right Hippocampus"]
+    ho_sub:
+      Hipp: ["Left Hippocampus", "Right Hippocampus"]
 ##      Amyg: ["Left Amygdala", "Right Amygdala"]
 ##      Caud: ["Left Caudate", "Right Caudate"]
 ##      Thal: ["Left Thalamus", "Right Thalamus"]

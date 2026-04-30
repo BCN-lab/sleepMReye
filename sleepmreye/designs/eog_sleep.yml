@@ -8,6 +8,7 @@ contrasts:
   eog: "eog_W + eog_S"
   eog_W: "eog_W"
   eog_S: "eog_S"
+#  eog_wake-sleep: "eog_W - eog_S"
 
 first_level:
   fwhm: 6
@@ -15,5 +16,9 @@ first_level:
   shift: 0
   split_regressors: eog
 
-desc_add: eog-sleep
+
+second_level:
+  method: flame
+
+desc_add: eog-sleep-norect
 
