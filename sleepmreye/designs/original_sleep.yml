@@ -3,7 +3,7 @@ F_TEST: false
 regressor_names:
   - mreyemove_W
   - mreyemove_S
-  - mreyemove_trans
+#  - mreyemove_trans
 
 contrasts:
   mreyemove: { }
@@ -20,6 +20,9 @@ first_level:
   convolve: true
   shift: 0
   split_regressors: mreyemove
+  coverage_atlas: cer_fsl
+  coverage_threshold: 0.9
+
 
 second_level:
 #  atlas: wang
@@ -29,5 +32,5 @@ second_level:
 
 #  var_smooth: 5
 
-desc_add: original-sleep-7TRs
+desc_add: original-sleep-7TRs-cer-cov
 

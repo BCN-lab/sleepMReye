@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def extract_eog(subject_dir: Path, subject: str, run: str, l_filter: float = None, h_filter: float = None):
-    path = subject_dir / f"sub-{subject}" / f"sub-{subject}_task-sleep_run-{run}_eeg.vhdr"
+    path = Path(subject_dir) / f"sub-{subject}" / f"sub-{subject}_task-sleep_run-{run}_eeg.vhdr"
     try:
         raw = mne.io.read_raw_brainvision(str(path), preload=True)
         if 'EOG' in raw.ch_names:

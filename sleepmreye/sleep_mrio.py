@@ -4,14 +4,10 @@ import numpy as np
 import re
 import pandas as pd
 from nilearn import signal
-from nilearn.image import resample_to_img
-from nilearn.masking import apply_mask
-from scipy.stats import zscore
 
-from mreyemove.constants import COMMON_CONFOUNDS, EYE_SIGNAL_CONFOUNDS
-from mreyemove.data.fmri_mixin import TissueType
+from mreyemove.constants import COMMON_CONFOUNDS
 from mreyemove.data.mrio import MRIO
-from mreyemove.preprocessing.eye_move import construct_dissimilarity_signal
+from mreyemove.qc_logging import RunQCLogger
 
 logger = logging.getLogger(__name__)
 
@@ -21,24 +17,30 @@ class SleepMRIO(MRIO):
     VALID_EVENT_STAGES = ["W", "1", "2"]
     MASK_COLS = ["W", "1", "2", "S"]
     FD_THRESHOLD = 0.5
-    IGNORE_BOUNDARY_TRS = 7
 
-    def __init__(self, load_eog: bool = True, **kwargs):
+    def __init__(self, load_eog: bool = True, ignore_boundary_trs: int = 0, **kwargs):
         self.load_eog = load_eog
+        self.ignore_boundary_trs = ignore_boundary_trs
+
         super().__init__(**kwargs)
 
-    def run_inclusion_condition(self, _run_events: pd.DataFrame) -> bool:
-        valid_sleep_stages = (_run_events["state"].isin(self.VALID_EVENT_STAGES)).all()
+    def run_exclusion_condition(self, _run_events: pd.DataFrame) -> dict[str, bool]:
+        """Return per-criterion QC results for a run."""
         subject = _run_events["subject"].iloc[0]
         run = _run_events["run"].iloc[0]
+
+        valid_stages = _run_events["state"].isin(self.VALID_EVENT_STAGES).all()
+
         fd = self.load_confounds(
-            subject=subject,
-            run=run,
-            confound_names=["framewise_displacement"]
+            subject=subject, run=run,
+            confound_names=["framewise_displacement"],
         )["framewise_displacement"]
         below_fd = fd.mean() < self.FD_THRESHOLD
 
-        return valid_sleep_stages and below_fd
+        return {
+            "invalid_stages": not valid_stages,
+            "above_fd": not below_fd,
+        }
 
     def _load_events_impl(
         self,
