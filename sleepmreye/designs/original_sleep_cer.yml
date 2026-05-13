@@ -20,6 +20,8 @@ first_level:
   convolve: true
   shift: 0
   split_regressors: mreyemove
+  coverage_atlas: cer_fsl
+  coverage_threshold: 0.9
 
 
 second_level:
@@ -30,5 +32,5 @@ second_level:
 
 #  var_smooth: 5
 
-desc_add: original-sleep-incl-nrem3
+desc_add: original-sleep-cer-cov
 

@@ -14,13 +14,12 @@ logger = logging.getLogger(__name__)
 
 class SleepMRIO(MRIO):
     DEFAULT_TASK = "sleep"
-    VALID_EVENT_STAGES = ["W", "1", "2"]
+    VALID_EVENT_STAGES = ["W", "1", "2", "3"]
     MASK_COLS = ["W", "1", "2", "S"]
     FD_THRESHOLD = 0.5
 
-    def __init__(self, load_eog: bool = True, ignore_boundary_trs: int = 0, **kwargs):
+    def __init__(self, load_eog: bool = True, **kwargs):
         self.load_eog = load_eog
-        self.ignore_boundary_trs = ignore_boundary_trs
 
         super().__init__(**kwargs)
 
@@ -267,6 +266,13 @@ class SleepMRIO(MRIO):
                     ).ravel()
                     eog_run = np.maximum(eog_run, 0)
                 else:
+                    self.qc_logger.log(
+                        subject=subject,
+                        run=run,
+                        excluded=True,
+                        stage="eeg",
+                        eog_run_len=len(eog_run),
+                    )
                     logger.warning("EOG data not full for %s, %s (%d/%d). Skipping", subject, run, len(eog_run), len(run_tr_df))
                     eog_run = [np.nan for _ in range(len(run_tr_df))]
 
@@ -292,7 +298,6 @@ class SleepMRIO(MRIO):
         if rectify:
             fname = "rectify_"
         fname = f"{fname}{aggr}_eog_reg.p"
-        logger.info(dir / fname)
 
         df = pd.read_pickle(dir / fname)
         return df

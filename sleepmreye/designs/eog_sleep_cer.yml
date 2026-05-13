@@ -19,5 +19,5 @@ first_level:
 
 second_level:
   method: flame
-  desc_add: eog-sleep-cer-cov-nrem3
+desc_add: eog-sleep-cer-cov
 
