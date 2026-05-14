@@ -15,9 +15,11 @@ first_level:
   convolve: true
   shift: 0
   split_regressors: eog
-
+  coverage_atlas: cer_fsl
+  coverage_threshold: 0.9
 
 second_level:
   method: flame
+
 desc_add: eog-sleep-cer-cov
 
