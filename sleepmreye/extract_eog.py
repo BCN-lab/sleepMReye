@@ -89,7 +89,8 @@ def run_subject(subject: str, mrio: MRIO, eeg_dir: Path, aggregator: Callable, r
                 run=run,
                 excluded=True,
                 stage="eeg_read",
-                no_eeg_found=True
+                no_eeg_found=True,
+                desc_add=mrio.desc_add,
             )
             continue
 

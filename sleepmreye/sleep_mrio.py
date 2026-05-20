@@ -271,6 +271,7 @@ class SleepMRIO(MRIO):
                         run=run,
                         excluded=True,
                         stage="eeg",
+                        desc_add=self.desc_add,
                         eog_run_len=len(eog_run),
                     )
                     logger.warning("EOG data not full for %s, %s (%d/%d). Skipping", subject, run, len(eog_run), len(run_tr_df))

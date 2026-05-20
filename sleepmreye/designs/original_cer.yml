@@ -21,7 +21,7 @@ first_level:
   shift: 0
   split_regressors: mreyemove
   coverage_atlas: cer_fsl
-  coverage_threshold: 0.9
+  coverage_threshold: 0.90
 
 
 second_level:
