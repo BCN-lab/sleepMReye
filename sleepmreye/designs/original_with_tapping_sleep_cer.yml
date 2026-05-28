@@ -3,14 +3,13 @@ F_TEST: false
 regressor_names:
   - mreyemove_W
   - mreyemove_S
-  - conv_framewise_displacement
+  - button_tap_count
 
 contrasts:
   mreyemove: { }
   mreyemove_W: "mreyemove_W"
   mreyemove_S: "mreyemove_S"
-#  mreyemove_W-mreyemove_S: "mreyemove_W - mreyemove_S"
-  conv_framewise_displacement: "conv_framewise_displacement"
+  tapping: "button_tap_count"
 
 
 first_level:
@@ -18,11 +17,12 @@ first_level:
   convolve: true
   shift: 0
   split_regressors: mreyemove
+  coverage_atlas: cer_fsl
+  coverage_threshold: 0.9
 
 
 second_level:
   method: flame
 
-
-desc_add: conv-fd-sleep
+desc_add: original-sleep-button-taps-cer-cov
 

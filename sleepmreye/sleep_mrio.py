@@ -115,7 +115,7 @@ class SleepMRIO(MRIO):
                 logger.info(f"Removing subject {subject} without sleep sessions")
 
         if not all_events:
-            raise RuntimeError("No sleep epoch files found under sourcedata.")
+            raise RuntimeError(f"No sleep epoch files found under sourcedata path {event_dir}.")
 
         events = pd.concat(all_events, ignore_index=True)
 
@@ -225,6 +225,7 @@ class SleepMRIO(MRIO):
             )
 
             if load_signal:
+                # Trims  TRs
                 run_tr_df = self._add_mreyemove_to_events(
                     df=run_tr_df,
                     subject=subject,
@@ -241,10 +242,17 @@ class SleepMRIO(MRIO):
                 .reset_index(drop=True)
             )
             run_tr_df["conv_framewise_displacement"] = framewise_displacement
+            self.split_regressor(
+                run_df=run_tr_df,
+                regressor_name="conv_framewise_displacement",
+                state_cols=self.MASK_COLS,
+                fill_value=0.0,
+            )
             if self.load_eog and eog_data is not None:
                 eog_run_df = eog_data[
                     (eog_data["subject"] == subject) & (eog_data["run"] == str(run))
                 ].reset_index(drop=True)
+
                 eog_run = eog_run_df["signal"].to_numpy()
 
                 # Take velocity so equivalent to mreyemove and half shift
@@ -252,6 +260,8 @@ class SleepMRIO(MRIO):
                 eog_run = 0.5 * (eog_run[:-1] + eog_run[1:])
 
                 if len(eog_run) == len(run_tr_df):
+                    run_tr_df["button_tap_count"] = eog_run_df["button_tap_count"].to_numpy()[self.tr_slice()]
+
                     confounds = self.load_confounds(
                         subject=subject, run=run, confound_names=COMMON_CONFOUNDS
                     )

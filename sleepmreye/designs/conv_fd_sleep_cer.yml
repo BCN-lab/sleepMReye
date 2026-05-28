@@ -18,11 +18,12 @@ first_level:
   convolve: true
   shift: 0
   split_regressors: mreyemove
-
+  coverage_atlas: cer_fsl
+  coverage_threshold: 0.90
 
 second_level:
   method: flame
 
 
-desc_add: conv-fd-sleep
+desc_add: conv-fd-sleep-cer-cov
 

@@ -16,7 +16,7 @@ from mreyemove.data.mrio import MRIO
 logger = logging.getLogger(__name__)
 
 
-def extract_eog(eeg_dir: Path, subject: str, run: str, subj_logger: ContextAdapter, l_filter: float = None, h_filter: float = None, ):
+def extract_eog(eeg_dir: Path, subject: str, run: str, subj_logger: ContextAdapter = None, l_filter: float = None, h_filter: float = None, ):
     path = Path(eeg_dir) / f"sub-{subject}" / f"sub-{subject}_task-sleep_run-{run}_eeg_desc-gacbcg_eeg.set"
     try:
         raw = mne.io.read_raw_eeglab(str(path), preload=True)
@@ -29,7 +29,13 @@ def extract_eog(eeg_dir: Path, subject: str, run: str, subj_logger: ContextAdapt
     return raw
 
 
-def extract_TR_epochs(raw, picks=None, annotation: str = 'R128', offset_fraction=0.0):
+def extract_TR_epochs(
+        raw,
+        picks=None,
+        annotation: str = 'R128',
+        offset_fraction=0.0
+) -> tuple[mne.Epochs, np.array]:
+
     events, event_ids = mne.events_from_annotations(raw)
     r128_id = {annotation: event_ids[annotation]}
     r128_events = events[events[:, 2] == r128_id[annotation]]
@@ -64,7 +70,24 @@ def extract_TR_epochs(raw, picks=None, annotation: str = 'R128', offset_fraction
         baseline=None,
         preload=True
     )
-    return epochs
+
+    button_tap_annot = "S  1"
+    if button_tap_annot not in event_ids:
+        tap_counts = np.zeros(shape=(len(samples)))
+        return epochs, tap_counts
+
+    button_tap_code = event_ids[button_tap_annot]
+    button_tap_samples = events[events[:, 2] == button_tap_code, 0]
+
+    # For every sample in the BOLD triggers, sum the number of button tap samples that
+    # occurred between the BOLD trigger time window
+    tap_counts = np.array([
+        np.sum((button_tap_samples >= s) & (button_tap_samples < s + win_len))
+        for s in shifted_onsets
+    ])
+    tap_counts = tap_counts[epochs.selection]
+
+    return epochs, tap_counts
 
 
 def run_subject(subject: str, mrio: MRIO, eeg_dir: Path, aggregator: Callable, rectify: bool = False, log_level: int = logging.INFO, ):
@@ -79,6 +102,7 @@ def run_subject(subject: str, mrio: MRIO, eeg_dir: Path, aggregator: Callable, r
     subjects = []
     runs = []
     TRs = []
+    taps = []
     subj_logger.info("Running subject %s ", subject)
 
     for _, run, _ in mrio.iter_run_events(subject=subject, run_exclusion=False):
@@ -95,7 +119,7 @@ def run_subject(subject: str, mrio: MRIO, eeg_dir: Path, aggregator: Callable, r
             continue
 
         channel_raw = raw.copy().pick(["EOG"])
-        epochs = extract_TR_epochs(channel_raw, picks=['EOG'], annotation="R128", offset_fraction=0.0)
+        epochs, button_taps = extract_TR_epochs(channel_raw, picks=['EOG'], annotation="R128", offset_fraction=0.0)
 
         signal = []
         for epoch in epochs:
@@ -103,16 +127,24 @@ def run_subject(subject: str, mrio: MRIO, eeg_dir: Path, aggregator: Callable, r
                 epoch = np.abs(epoch)
             signal.append(aggregator(epoch))
 
+        if len(signal) != len(button_taps):
+            subj_logger.warning("Tap shape (%s) is inconsistent with number of TRs (%s)", button_taps.shape, len(signal))
+
         signals.extend(signal)
+        taps.extend(button_taps)
         TRs.extend(range(0, len(signal)))
         subjects.extend([subject for _ in range(len(signal))])
         runs.extend([run for _ in range(len(signal))])
+
+    if len(signals) != len(taps):
+        subj_logger.warning("Tap array len (%s) is inconsistent with signal len (%s)", len(taps), len(signals))
 
     df = pd.DataFrame({
         "subject": subjects,
         "run": runs,
         "TR": TRs,
-        "signal": signals
+        "signal": signals,
+        "button_tap_count": taps,
     })
     return df
 
