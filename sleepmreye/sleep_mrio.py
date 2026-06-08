@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class SleepMRIO(MRIO):
     DEFAULT_TASK = "sleep"
-    VALID_EVENT_STAGES = ["W", "1", "2", "3"]
+    VALID_EVENT_STAGES = ["W", "1", "2"]
     MASK_COLS = ["W", "1", "2", "S"]
     FD_THRESHOLD = 0.5
 
@@ -255,7 +255,7 @@ class SleepMRIO(MRIO):
 
                 eog_run = eog_run_df["signal"].to_numpy()
 
-                # Take velocity so equivalent to mreyemove and half shift
+                # Take diff and half shift so equivalent to mreyemove
                 eog_run = np.abs(np.diff(eog_run))
                 eog_run = 0.5 * (eog_run[:-1] + eog_run[1:])
 
