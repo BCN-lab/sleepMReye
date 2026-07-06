@@ -10,7 +10,6 @@ contrasts:
   mreyemove_S: "mreyemove_S"
   mreyemove_W-mreyemove_S: "mreyemove_W - mreyemove_S"
 
-
 first_level:
   fwhm: 6
   convolve: true
@@ -19,23 +18,16 @@ first_level:
 
 second_level:
   ROIs:
-    benson:
-      "V1": [V1]
-      "V2": [V2]
-      "V3": [V3]
-      "hV4": [hV4]
-      "VO1": [VO1]
-      "VO2": [VO2]
-      "LO1": [LO1]
-      "LO2": [LO2]
-      "TO1": [TO1]
-      "TO2": [TO2]
-      "V3b": [V3b]
-      "V3a": [V3a]
-#
-#  ROI_contrasts:
-#    V1-V2/3: "V1 - 0.5*V2 - 0.5*V3"
-#
+    benson_eccen:
+      "fovea": [fovea]
+      "periphery": [periphery]
+#      "V3": [V3]
+
+  ROI_contrasts:
+    V1-V2/3: "V1 - 0.5*V2 - 0.5*V3"
+#    V1-V3: "V1 - V3"
+#    V2-V3: "V2 - V3"
+
 #  ROI_contrast_atlas:
 #    "benson"
 

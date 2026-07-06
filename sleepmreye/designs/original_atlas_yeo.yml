@@ -2,13 +2,17 @@ F_TEST: false
 
 regressor_names:
   - mreyemove_W
-  - mreyemove_S
+  - mreyemove_1
+  - mreyemove_2
 
 contrasts:
   mreyemove: { }
   mreyemove_W: "mreyemove_W"
-  mreyemove_S: "mreyemove_S"
-  mreyemove_W-mreyemove_S: "mreyemove_W - mreyemove_S"
+  mreyemove_1: "mreyemove_1"
+  mreyemove_2: "mreyemove_2"
+  mreyemove_1-mreyemove_2: "mreyemove_1 - mreyemove_2"
+  mreyemove_W-mreyemove_1: "mreyemove_W - mreyemove_1"
+  mreyemove_W-mreyemove_2: "mreyemove_W - mreyemove_2"
 
 
 first_level:
@@ -19,25 +23,15 @@ first_level:
 
 second_level:
   ROIs:
-    benson:
-      "V1": [V1]
-      "V2": [V2]
-      "V3": [V3]
-      "hV4": [hV4]
-      "VO1": [VO1]
-      "VO2": [VO2]
-      "LO1": [LO1]
-      "LO2": [LO2]
-      "TO1": [TO1]
-      "TO2": [TO2]
-      "V3b": [V3b]
-      "V3a": [V3a]
-#
-#  ROI_contrasts:
-#    V1-V2/3: "V1 - 0.5*V2 - 0.5*V3"
-#
-#  ROI_contrast_atlas:
-#    "benson"
+    yeo_surf:
+      "Visual": [ Visual ]
+      "Somatomotor": [ Somatomotor ]
+      "Dorsal Attention": [ Dorsal Attention ]
+      "Ventral Attention": [ Ventral Attention ]
+      "Limbic": [ Limbic ]
+      "Frontoparietal": [ Frontoparietal ]
+      "Default": [ Default ]
+
 
 #    glasser:
 #      "Calcarine Sulcus": [ "L_V1_ROI", "R_V1_ROI" ]
@@ -60,4 +54,4 @@ second_level:
 #      Caud: ["Left Caudate", "Right Caudate"]
 #      Thal: ["Left Thalamus", "Right Thalamus"]
 
-desc_add: original-sleep
+desc_add: original

@@ -22,26 +22,45 @@ first_level:
 
 second_level:
   ROIs:
-    glasser:
-      "Calcarine Sulcus": [ "L_V1_ROI", "R_V1_ROI" ]
-      "Central Sulcus": [ "L_3a_ROI", "R_3a_ROI", "L_3b_ROI", "R_3b_ROI","L_4_ROI", "R_4_ROI", ]
-      "Frontal Eye Fields": [ "L_FEF_ROI", "R_FEF_ROI", ]
-      "Supplementary Eye Fields": [ "L_SCEF_ROI", "R_SCEF_ROI" ]
-    cel_ret:
-      "OMV": [ "left_mOMV", "left_lOMV", "right_mOMV", "right_lOMV" ]
-      "VIIb": [ "left_VIIb", "right_VIIb" ]
-      "VIIIb": [ "left_mVIIIb", "left_lVIIIb", "right_mVIIIb", "right_lVIIIb" ]
+    benson:
+      "V1": [V1]
+      "V2": [V2]
+      "V3": [V3]
+      "hV4": [hV4]
+      "VO1": [VO1]
+      "VO2": [VO2]
+      "LO1": [LO1]
+      "LO2": [LO2]
+      "TO1": [TO1]
+      "TO2": [TO2]
+      "V3b": [V3b]
+      "V3a": [V3a]
+
+  ROI_contrasts:
+    V1-V2/3: "V1 - 0.5*V2 - 0.5*V3"
+
+  ROI_contrast_atlas:
+    "benson"
+
 #    glasser:
+#      "Calcarine Sulcus": [ "L_V1_ROI", "R_V1_ROI" ]
+#      "Central Sulcus": [ "L_3a_ROI", "R_3a_ROI", "L_3b_ROI", "R_3b_ROI","L_4_ROI", "R_4_ROI",  ]
+#      "Frontal Eye Fields": [ "L_FEF_ROI", "R_FEF_ROI", ]
+#      "Supplementary Eye Fields": [ "L_SCEF_ROI", "R_SCEF_ROI" ]
+#    cel_ret:
+#      "OMV": ["left_mOMV", "left_lOMV", "right_mOMV", "right_lOMV"]
+#      "VIIb": ["left_VIIb", "right_VIIb"]
+#      "VIIIb": ["left_mVIIIb", "left_lVIIIb", "right_mVIIIb", "right_lVIIIb"]
 #      V1: [ L_V1_ROI, R_V1_ROI ]
-##      V2: [ L_V2_ROI, R_V2_ROI ]
-##      SM: [ L_4_ROI, R_4_ROI, L_3a_ROI, R_3a_ROI, L_3b_ROI, R_3b_ROI, L_1_ROI, R_1_ROI, L_2_ROI, R_2_ROI ]
-##      SMA: [ L_6ma_ROI, R_6ma_ROI, L_6mp_ROI, R_6mp_ROI, L_SCEF_ROI, R_SCEF_ROI ]
+#      V2: [ L_V2_ROI, R_V2_ROI ]
+#      SM: [ L_4_ROI, R_4_ROI, L_3a_ROI, R_3a_ROI, L_3b_ROI, R_3b_ROI, L_1_ROI, R_1_ROI, L_2_ROI, R_2_ROI ]
+#      SMA: [ L_6ma_ROI, R_6ma_ROI, L_6mp_ROI, R_6mp_ROI, L_SCEF_ROI, R_SCEF_ROI ]
 #      FEF: [ L_FEF_ROI, R_FEF_ROI ]
-##      TPO: [ L_TPOJ1_ROI, R_TPOJ1_ROI, L_TPOJ2_ROI, R_TPOJ2_ROI, L_TPOJ3_ROI, R_TPOJ3_ROI ]
-    ho_sub:
-      Hipp: ["Left Hippocampus", "Right Hippocampus"]
-##      Amyg: ["Left Amygdala", "Right Amygdala"]
-##      Caud: ["Left Caudate", "Right Caudate"]
-##      Thal: ["Left Thalamus", "Right Thalamus"]
+#      TPO: [ L_TPOJ1_ROI, R_TPOJ1_ROI, L_TPOJ2_ROI, R_TPOJ2_ROI, L_TPOJ3_ROI, R_TPOJ3_ROI ]
+#    ho_sub:
+#      Hipp: ["Left Hippocampus", "Right Hippocampus"]
+#      Amyg: ["Left Amygdala", "Right Amygdala"]
+#      Caud: ["Left Caudate", "Right Caudate"]
+#      Thal: ["Left Thalamus", "Right Thalamus"]
 
 desc_add: original
