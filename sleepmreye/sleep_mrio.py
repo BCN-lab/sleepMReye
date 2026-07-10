@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class SleepMRIO(MRIO):
     DEFAULT_TASK = "sleep"
-    VALID_EVENT_STAGES = ["W", "1", "2"]
+    VALID_EVENT_STAGES = ["W", "1", "2", "3"]
     MASK_COLS = ["W", "1", "2", "S"]
     FD_THRESHOLD = 0.5
 

@@ -20,6 +20,7 @@ def plot_surface_searchlight(
         inflate=False,
         output_file=None,
         bg_on_data=True,
+        mask=None,
 ):
     """
     Plot surface searchlight correlation maps using the same rendering
@@ -81,9 +82,15 @@ def plot_surface_searchlight(
         ax = fig.add_subplot(grid[grid_idx], projection="3d")
         axes.append(ax)
 
+        surf_map = corr_maps[hemi].copy()
+
+        if mask is not None:
+            # Mask everywhere where the mask is False (with nan)
+            surf_map[~mask[hemi]] = np.nan
+
         _plot_surf(
             surf_mesh=surf[hemi],
-            surf_map=corr_maps[hemi],
+            surf_map=surf_map,
             bg_map=bg_map,
             hemi=hemi,
             view=mode,
