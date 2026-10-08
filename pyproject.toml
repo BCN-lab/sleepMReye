@@ -11,6 +11,13 @@ authors = [
   { name = "Zach", email = "zachnudels@gmail.com" }
 ]
 
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv.sources]
+mreyemove = { git = "ssh://git@github.com/DeepMReye/MReyeMove.git", tag = "v0.0.1" }
+
 [tool.setuptools.packages.find]
 include = ["sleepmreye*"]
 exclude = ["nilearn_cache*"]
